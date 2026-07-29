@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>AI Prompt Vault</title>
+
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>🚀 AI Prompt Vault</h1>
+
+        <input
+            id="search"
+            type="text"
+            placeholder="Search prompts...">
+
+        <hr>
+
+        <input
+            id="title"
+            type="text"
+            placeholder="Prompt Title">
+
+        <input
+            id="category"
+            type="text"
+            placeholder="Category">
+
+        <textarea
+            id="prompt"
+            placeholder="Write your AI prompt here..."></textarea>
+
+            <div class="stats">
+
+    <span id="totalCount">Total: 0</span>
+
+    <span id="favoriteCount">Favorites: 0</span>
+
+</div>
+
+        <button id="saveBtn">
+            Save Prompt
+        </button>
+
+        <hr>
+
+        <div id="promptList"></div>
+
+    </div>
+
+    <script src="popup.js"></script>
+
+</body>
+
+</html>
