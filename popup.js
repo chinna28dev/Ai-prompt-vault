@@ -11,11 +11,27 @@ const exportBtn = document.getElementById("exportBtn");
 const importBtn = document.getElementById("importBtn");
 const importFile = document.getElementById("importFile");
 const toast = document.getElementById("toast");
+const categoryFilter = document.getElementById("categoryFilter");
+const favoritesOnlyBtn = document.getElementById("favoritesOnlyBtn");
+
+let favoritesOnly = false;
+
 loadPrompts();
 
 saveBtn.addEventListener("click", savePrompt);
 searchInput.addEventListener("input", loadPrompts);
 sortSelect.addEventListener("change", loadPrompts);
+categoryFilter.addEventListener("change", loadPrompts);
+
+favoritesOnlyBtn.addEventListener("click", () => {
+
+    favoritesOnly = !favoritesOnly;
+
+    favoritesOnlyBtn.classList.toggle("active", favoritesOnly);
+
+    loadPrompts();
+
+});
 function savePrompt() {
 
     const title = titleInput.value.trim();
@@ -33,6 +49,7 @@ function savePrompt() {
         category,
         prompt,
         favorite: false,
+        pinned: false,
         createdAt: new Date().toLocaleString()
     };
 
@@ -59,9 +76,12 @@ function loadPrompts() {
 
         const prompts = result.prompts || [];
 
-        const keyword = searchInput.value.toLowerCase();
+        populateCategoryFilter(prompts);
 
-        const filtered = prompts.filter(p =>
+        const keyword = searchInput.value.toLowerCase();
+        const selectedCategory = categoryFilter.value;
+
+        let filtered = prompts.filter(p =>
 
             p.title.toLowerCase().includes(keyword) ||
 
@@ -70,6 +90,20 @@ function loadPrompts() {
             p.prompt.toLowerCase().includes(keyword)
 
         );
+
+        if(selectedCategory !== "all"){
+
+            filtered = filtered.filter(p =>
+                (p.category || "General") === selectedCategory
+            );
+
+        }
+
+        if(favoritesOnly){
+
+            filtered = filtered.filter(p => p.favorite);
+
+        }
 
         totalCount.textContent = "Total: " + prompts.length;
 
@@ -107,23 +141,33 @@ switch(sortValue){
         filtered.sort((a,b)=>b.id-a.id);
 }
 
+        // Pinned prompts always float to the top, above the chosen sort order.
+        // (Array.sort is stable, so within each group the sort above is preserved.)
+        filtered.sort((a,b)=> (b.pinned?1:0) - (a.pinned?1:0));
+
         filtered.forEach(prompt=>{
 
             const card=document.createElement("div");
 
-            card.className="card";
+            card.className = "card" + (prompt.pinned ? " pinned" : "");
 
             card.innerHTML=`
 
-                <h3>${prompt.title}</h3>
+                <div class="cardHeader">
 
-                <small>${prompt.category||"General"}</small>
+                    <h3>${prompt.pinned ? '<span class="pinIcon">📌</span>' : ""}${prompt.title}</h3>
+
+                    <span class="badge">${prompt.category||"General"}</span>
+
+                </div>
 
                 <p>${prompt.prompt}</p>
 
-                <span>${prompt.createdAt}</span>
+                <span class="timestamp">${prompt.createdAt}</span>
 
                 <div class="actions">
+
+                    <button class="pinBtn ${prompt.pinned ? "active":""}">📌</button>
 
                     <button class="copyBtn">📋</button>
 
@@ -163,11 +207,47 @@ switch(sortValue){
 
             };
 
+            card.querySelector(".pinBtn").onclick=()=>{
+
+                togglePin(prompt.id);
+
+            };
+
             promptList.appendChild(card);
 
         });
 
     });
+
+}
+
+function populateCategoryFilter(prompts){
+
+    const categories = Array.from(
+        new Set(prompts.map(p => (p.category || "General").trim() || "General"))
+    ).sort((a,b)=>a.localeCompare(b));
+
+    const previousValue = categoryFilter.value || "all";
+
+    categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+
+    categories.forEach(cat=>{
+
+        const option = document.createElement("option");
+
+        option.value = cat;
+
+        option.textContent = cat;
+
+        categoryFilter.appendChild(option);
+
+    });
+
+    if(categories.includes(previousValue) || previousValue === "all"){
+
+        categoryFilter.value = previousValue;
+
+    }
 
 }
 
@@ -234,6 +314,28 @@ function toggleFavorite(id){
         prompt.favorite=!prompt.favorite;
 
         chrome.storage.local.set({prompts},()=>{
+
+            loadPrompts();
+
+        });
+
+    });
+
+}
+
+function togglePin(id){
+
+    chrome.storage.local.get(["prompts"],(result)=>{
+
+        const prompts=result.prompts;
+
+        const prompt=prompts.find(p=>p.id===id);
+
+        prompt.pinned=!prompt.pinned;
+
+        chrome.storage.local.set({prompts},()=>{
+
+            showToast(prompt.pinned ? "Prompt pinned!" : "Prompt unpinned!");
 
             loadPrompts();
 

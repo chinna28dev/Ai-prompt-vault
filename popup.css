@@ -96,15 +96,63 @@ hr{
 
 }
 
+.card.pinned{
+
+    border-color:#F59E0B;
+
+    background:#241F14;
+
+}
+
+.cardHeader{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:flex-start;
+
+    gap:8px;
+
+    margin-bottom:6px;
+
+}
+
 .card h3{
 
     margin-bottom:6px;
 
 }
 
+.pinIcon{
+
+    margin-right:4px;
+
+}
+
 .card small{
 
     color:#60A5FA;
+
+}
+
+.badge{
+
+    display:inline-block;
+
+    background:#374151;
+
+    color:#93C5FD;
+
+    padding:3px 10px;
+
+    border-radius:999px;
+
+    font-size:11px;
+
+    white-space:nowrap;
+
+    flex-shrink:0;
 
 }
 
@@ -116,7 +164,7 @@ hr{
 
 }
 
-.card span{
+.card span.timestamp{
 
     color:#9CA3AF;
 
@@ -177,6 +225,18 @@ hr{
 }
 
 .favoriteBtn.active{
+
+    background:#F59E0B;
+
+}
+
+.pinBtn.active{
+
+    background:#10B981;
+
+}
+
+#favoritesOnlyBtn.active{
 
     background:#F59E0B;
 
