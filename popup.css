@@ -1,3 +1,4 @@
+
 *{
     margin:0;
     padding:0;
@@ -117,7 +118,7 @@ hr{
 
 .card span{
 
-    color:#143b7f;
+    color:#9CA3AF;
 
     font-size:12px;
 
@@ -208,7 +209,7 @@ hr{
     background: #10B981;
     color: white;
     padding: 10px 16px;
-    border: radius 8px;
+    border-radius: 8px;
     opacity: 0; 
     transition: .3s;
     pointer-events: none;
