@@ -15,6 +15,7 @@ loadPrompts();
 
 saveBtn.addEventListener("click", savePrompt);
 searchInput.addEventListener("input", loadPrompts);
+sortSelect.addEventListener("change", loadPrompts);
 function savePrompt() {
 
     const title = titleInput.value.trim();
@@ -86,6 +87,26 @@ function loadPrompts() {
 
         }
 
+        const sortValue = sortSelect.value;
+
+switch(sortValue){
+
+    case "oldest":
+        filtered.sort((a,b)=>a.id-b.id);
+        break;
+
+    case "az":
+        filtered.sort((a,b)=>a.title.localeCompare(b.title));
+        break;
+
+    case "za":
+        filtered.sort((a,b)=>b.title.localeCompare(a.title));
+        break;
+
+    default:
+        filtered.sort((a,b)=>b.id-a.id);
+}
+
         filtered.forEach(prompt=>{
 
             const card=document.createElement("div");
@@ -116,35 +137,7 @@ function loadPrompts() {
 
             `;
 
-            const sortValue = sortSelect ? sortSelect.value : "newest";
 
-        switch(sortValue){
-
-    case "oldest":
-
-        filtered.sort((a,b)=>a.id-b.id);
-
-        break;
-
-    case "az":
-
-        filtered.sort((a,b)=>a.title.localeCompare(b.title));
-
-        break;
-
-    case "za":
-
-        filtered.sort((a,b)=>b.title.localeCompare(a.title));
-
-        break;
-
-    default:
-
-        filtered.sort((a,b)=>b.id-a.id);
-
-}
-
-        sortSelect.addEventListener("change",loadPrompts);
             card.querySelector(".copyBtn").onclick=()=>{
 
                 navigator.clipboard.writeText(prompt.prompt);
