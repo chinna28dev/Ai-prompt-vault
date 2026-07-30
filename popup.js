@@ -6,6 +6,11 @@ const promptList = document.getElementById("promptList");
 const searchInput = document.getElementById("search");
 const totalCount = document.getElementById("totalCount");
 const favoriteCount = document.getElementById("favoriteCount");
+const sortSelect = document.getElementById("sortSelect");
+const exportBtn = document.getElementById("exportBtn");
+const importBtn = document.getElementById("importBtn");
+const importFile = document.getElementById("importFile");
+const toast = document.getElementById("toast");
 loadPrompts();
 
 saveBtn.addEventListener("click", savePrompt);
@@ -111,9 +116,37 @@ function loadPrompts() {
 
             `;
 
+            switch(sortSelect.value){
+
+    case "oldest":
+
+        filtered.sort((a,b)=>a.id-b.id);
+
+        break;
+
+    case "az":
+
+        filtered.sort((a,b)=>a.title.localeCompare(b.title));
+
+        break;
+
+    case "za":
+
+        filtered.sort((a,b)=>b.title.localeCompare(a.title));
+
+        break;
+
+    default:
+
+        filtered.sort((a,b)=>b.id-a.id);
+
+}
+
+        sortSelect.addEventListener("change",loadPrompts);
             card.querySelector(".copyBtn").onclick=()=>{
 
                 navigator.clipboard.writeText(prompt.prompt);
+                showToast("Prompt copied!");
 
             };
 
@@ -214,3 +247,87 @@ function toggleFavorite(id){
     });
 
 }
+
+function showToast(message){
+
+    toast.textContent = message;
+
+    toast.classList.add("show");
+
+    setTimeout(()=>{
+
+        toast.classList.remove("show");
+
+    },2000);
+
+}
+
+exportBtn.addEventListener("click",()=>{
+
+    chrome.storage.local.get(["prompts"],(result)=>{
+
+        const blob = new Blob(
+
+            [JSON.stringify(result.prompts||[],null,2)],
+
+            {type:"application/json"}
+
+        );
+
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+
+        a.href = url;
+
+        a.download = "ai-prompts.json";
+
+        a.click();
+
+        URL.revokeObjectURL(url);
+
+        showToast("Export complete!");
+
+    });
+
+});
+
+importBtn.addEventListener("click",()=>{
+
+    importFile.click();
+
+});
+
+importFile.addEventListener("change",(e)=>{
+
+    const file = e.target.files[0];
+
+    if(!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = ()=>{
+
+        try{
+
+            const prompts = JSON.parse(reader.result);
+
+            chrome.storage.local.set({prompts},()=>{
+
+                loadPrompts();
+
+                showToast("Import successful!");
+
+            });
+
+        }catch{
+
+            alert("Invalid JSON file.");
+
+        }
+
+    };
+
+    reader.readAsText(file);
+
+});

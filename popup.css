@@ -117,7 +117,7 @@ hr{
 
 .card span{
 
-    color:#9CA3AF;
+    color:#143b7f;
 
     font-size:12px;
 
@@ -179,4 +179,42 @@ hr{
 
     background:#F59E0B;
 
+}
+.toolbar{
+
+    display:flex;
+    gap:8px;
+    margin-bottom:15px;
+}
+
+.toolbar select{
+    flex:1;
+    padding:8px;
+    border:none;
+    border-radius:8px;
+    
+}
+
+.toolbar button{
+    padding:8px 12px;
+    width:auto;
+}
+
+#toast{
+    position:fixed;
+    bottom: 15px;
+    left:50%;
+    transform:translateX(-50%);
+    background: #10B981;
+    color: white;
+    padding: 10px 16px;
+    border: radius 8px;
+    opacity: 0; 
+    transition: .3s;
+    pointer-events: none;
+    font-size: 13px;
+}
+
+#toast.show{
+    opacity: 1;
 }
