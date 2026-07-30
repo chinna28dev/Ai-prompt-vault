@@ -116,7 +116,9 @@ function loadPrompts() {
 
             `;
 
-            switch(sortSelect.value){
+            const sortValue = sortSelect ? sortSelect.value : "newest";
+
+        switch(sortValue){
 
     case "oldest":
 
