@@ -1,93 +1,257 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>AI Prompt Vault</title>
-
-    <link rel="stylesheet" href="popup.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Prompt Vault</title>
+  <link rel="stylesheet" href="popup.css">
 </head>
+<body class="dark">
+  <div class="app">
 
-<body>
+    <!-- ── Header ─────────────────────────────────────────── -->
+    <header class="header">
+      <div class="header-brand">
+        <span class="logo-icon">⚡</span>
+        <span class="brand-name">AI Prompt Vault</span>
+      </div>
+      <button id="themeToggle" class="icon-btn" title="Toggle theme">🌙</button>
+    </header>
 
-    <div class="container">
+    <!-- ── Tab Nav ────────────────────────────────────────── -->
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="vault">
+        <span>🗂</span><span>Vault</span>
+      </button>
+      <button class="tab-btn" data-tab="add">
+        <span>✦</span><span>New</span>
+      </button>
+      <button class="tab-btn" data-tab="dashboard">
+        <span>📊</span><span>Stats</span>
+      </button>
+      <button class="tab-btn" data-tab="settings">
+        <span>⚙️</span><span>Settings</span>
+      </button>
+    </nav>
 
-        <h1>🚀 AI Prompt Vault</h1>
+    <!-- ── Tab: Vault ─────────────────────────────────────── -->
+    <section id="tab-vault" class="tab-content active">
 
-        <input
-            id="search"
-            type="text"
-            placeholder="Search prompts...">
+      <div class="search-wrap">
+        <span class="search-icon-inner">🔍</span>
+        <input id="search" type="text" placeholder="Search prompts, tags, categories…" autocomplete="off">
+        <button id="searchClear" class="search-clear hidden" title="Clear">✕</button>
+      </div>
 
-        <hr>
+      <div class="filter-bar">
+        <select id="sortSelect" class="select-sm">
+          <option value="newest">Newest</option>
+          <option value="oldest">Oldest</option>
+          <option value="edited">Last Edited</option>
+          <option value="az">A → Z</option>
+          <option value="za">Z → A</option>
+        </select>
+        <select id="categoryFilter" class="select-sm">
+          <option value="all">All Categories</option>
+        </select>
+      </div>
 
-        <input
-            id="title"
-            type="text"
-            placeholder="Prompt Title">
+      <div class="chip-row">
+        <button class="chip" data-filter="favorites">⭐ Favorites</button>
+        <button class="chip" data-filter="pinned">📌 Pinned</button>
+        <button class="chip" data-filter="archived">📦 Archive</button>
+        <button class="chip" data-filter="trash">🗑 Trash</button>
+      </div>
 
-        <input
-            id="category"
-            type="text"
-            placeholder="Category">
+      <div id="bulkBar" class="bulk-bar hidden">
+        <span id="selectedCount">0 selected</span>
+        <div class="bulk-actions">
+          <button id="bulkDeleteBtn" class="btn btn-danger btn-sm">Delete Selected</button>
+          <button id="bulkCancelBtn" class="btn btn-ghost btn-sm">Cancel</button>
+        </div>
+      </div>
 
-        <textarea
-            id="prompt"
-            placeholder="Write your AI prompt here..."></textarea>
+      <div id="promptList" class="prompt-list"></div>
+    </section>
 
-            <div class="stats">
+    <!-- ── Tab: Add / Edit ────────────────────────────────── -->
+    <section id="tab-add" class="tab-content">
+      <div class="form-wrap">
+        <h2 id="formTitle" class="form-heading">New Prompt</h2>
+        <input id="editId" type="hidden" value="">
 
-    <span id="totalCount">Total: 0</span>
+        <div class="field">
+          <label class="label" for="titleInput">Title <span class="req">*</span></label>
+          <input id="titleInput" type="text" class="input" placeholder="Give your prompt a name…" autocomplete="off">
+        </div>
 
-    <span id="favoriteCount">Favorites: 0</span>
+        <div class="field-row">
+          <div class="field">
+            <label class="label" for="categoryInput">Category</label>
+            <input id="categoryInput" type="text" class="input" placeholder="e.g. Writing, Coding…" list="categoryList" autocomplete="off">
+            <datalist id="categoryList"></datalist>
+          </div>
+          <div class="field">
+            <label class="label" for="tagsInput">Tags</label>
+            <input id="tagsInput" type="text" class="input" placeholder="tag1, tag2…" autocomplete="off">
+          </div>
+        </div>
 
-</div>
+        <div class="field">
+          <label class="label" for="promptInput">Prompt <span class="req">*</span></label>
+          <textarea id="promptInput" class="input textarea" placeholder="Write your AI prompt here…"></textarea>
+          <span class="char-count" id="charCount">0 characters</span>
+        </div>
 
-<div class="toolbar">
-    
-    <select id="sortSelect">
-        <option value="newest">Newest First</option>
-        <option value="oldest">Oldest First</option>
-        <option value="az">A - Z</option>
-           <option value="za">Z - A</option>
+        <div class="form-actions">
+          <button id="clearBtn" class="btn btn-ghost">Clear</button>
+          <button id="saveBtn" class="btn btn-primary">
+            <span id="saveBtnText">Save Prompt</span>
+          </button>
+        </div>
+      </div>
+    </section>
 
-    </select>
+    <!-- ── Tab: Dashboard ─────────────────────────────────── -->
+    <section id="tab-dashboard" class="tab-content">
+      <h2 class="section-heading">Dashboard</h2>
 
-    <select id="categoryFilter">
-        <option value="all">All Categories</option>
-    </select>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="statTotal">0</div>
+          <div class="stat-label">Total</div>
+        </div>
+        <div class="stat-card stat-accent">
+          <div class="stat-value" id="statFavorites">0</div>
+          <div class="stat-label">Favorites</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statPinned">0</div>
+          <div class="stat-label">Pinned</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statCategories">0</div>
+          <div class="stat-label">Categories</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statArchived">0</div>
+          <div class="stat-label">Archived</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statStorage">0 KB</div>
+          <div class="stat-label">Storage</div>
+        </div>
+      </div>
 
-    <button id="favoritesOnlyBtn">⭐ Favorites</button>
+      <div class="dash-section">
+        <h3 class="subsection-heading">Top Category</h3>
+        <div id="topCategory" class="top-cat">—</div>
+      </div>
 
-</div>
+      <div class="dash-section">
+        <h3 class="subsection-heading">Recently Added</h3>
+        <div id="recentlyAdded" class="mini-list"></div>
+      </div>
 
-<div class="toolbar toolbar-secondary">
+      <div class="dash-section">
+        <h3 class="subsection-heading">Recently Viewed</h3>
+        <div id="recentlyViewed" class="mini-list"></div>
+      </div>
+    </section>
 
-    <button id="exportBtn">Export</button>
-        <button id="importBtn">Import</button>
+    <!-- ── Tab: Settings ──────────────────────────────────── -->
+    <section id="tab-settings" class="tab-content">
+      <h2 class="section-heading">Settings</h2>
 
-        <input
-           type="file"
-            id="importFile"
-            accept=".json"
-            hidden>
+      <div class="settings-group">
+        <h3 class="settings-group-title">Appearance</h3>
+        <div class="setting-row">
+          <label>Theme</label>
+          <div class="btn-group">
+            <button class="btn-opt active" data-setting="theme" data-value="dark">🌙 Dark</button>
+            <button class="btn-opt" data-setting="theme" data-value="light">☀️ Light</button>
+          </div>
+        </div>
+        <div class="setting-row">
+          <label>Font Size</label>
+          <div class="btn-group">
+            <button class="btn-opt" data-setting="fontSize" data-value="small">S</button>
+            <button class="btn-opt active" data-setting="fontSize" data-value="medium">M</button>
+            <button class="btn-opt" data-setting="fontSize" data-value="large">L</button>
+          </div>
+        </div>
+        <div class="setting-row">
+          <label>Card Density</label>
+          <div class="btn-group">
+            <button class="btn-opt" data-setting="cardSize" data-value="compact">Compact</button>
+            <button class="btn-opt active" data-setting="cardSize" data-value="normal">Normal</button>
+            <button class="btn-opt" data-setting="cardSize" data-value="comfortable">Airy</button>
+          </div>
+        </div>
+      </div>
 
-</div>
+      <div class="settings-group">
+        <h3 class="settings-group-title">Defaults</h3>
+        <div class="setting-row">
+          <label>Default Sort</label>
+          <select id="defaultSort" class="input input-sm">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="edited">Last Edited</option>
+            <option value="az">A → Z</option>
+            <option value="za">Z → A</option>
+          </select>
+        </div>
+      </div>
 
-    <div id="toast"></div>
-    
-        <button id="saveBtn">
-            Save Prompt
-        </button>
+      <div class="settings-group">
+        <h3 class="settings-group-title">Data Management</h3>
+        <div class="data-actions">
+          <button id="exportJson" class="btn btn-secondary btn-sm">📤 Export JSON</button>
+          <button id="exportCsv" class="btn btn-secondary btn-sm">📊 Export CSV</button>
+          <button id="exportMd" class="btn btn-secondary btn-sm">📝 Export Markdown</button>
+          <button id="importJsonBtn" class="btn btn-secondary btn-sm">📥 Import JSON</button>
+          <input type="file" id="importFile" accept=".json" hidden>
+          <button id="backupBtn" class="btn btn-secondary btn-sm">💾 Backup All</button>
+          <button id="restoreBtn" class="btn btn-secondary btn-sm">🔄 Restore Backup</button>
+          <input type="file" id="restoreFile" accept=".json" hidden>
+        </div>
+        <div class="danger-actions">
+          <button id="emptyTrashBtn" class="btn btn-danger btn-sm">🗑 Empty Trash</button>
+          <button id="clearAllBtn" class="btn btn-danger btn-sm">⚠️ Clear All Data</button>
+        </div>
+      </div>
 
-        <hr>
+      <div class="settings-group">
+        <h3 class="settings-group-title">Keyboard Shortcuts</h3>
+        <div class="shortcuts">
+          <div class="shortcut-row"><kbd>Ctrl+N</kbd><span>New prompt</span></div>
+          <div class="shortcut-row"><kbd>Ctrl+F</kbd><span>Focus search</span></div>
+          <div class="shortcut-row"><kbd>Esc</kbd><span>Clear / cancel</span></div>
+        </div>
+      </div>
 
-        <div id="promptList"></div>
+      <p class="app-version">AI Prompt Vault v2.0 — Manifest V3</p>
+    </section>
 
+  </div><!-- /.app -->
+
+  <!-- ── Confirm Modal ──────────────────────────────────────── -->
+  <div id="confirmModal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-icon" id="confirmIcon">⚠️</div>
+      <h3 id="confirmTitle">Are you sure?</h3>
+      <p id="confirmMessage">This action cannot be undone.</p>
+      <div class="modal-btns">
+        <button id="confirmCancel" class="btn btn-ghost">Cancel</button>
+        <button id="confirmOk" class="btn btn-danger">Delete</button>
+      </div>
     </div>
+  </div>
 
-    <script src="popup.js"></script>
+  <!-- ── Toast ─────────────────────────────────────────────── -->
+  <div id="toast" class="toast"></div>
 
+  <script src="popup.js"></script>
 </body>
-
 </html>
